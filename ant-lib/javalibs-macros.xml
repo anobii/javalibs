@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="javalibs-macros" default="default" basedir="." xmlns:ac="antlib:net.sf.antcontrib">
+    <description>Builds, tests, and runs the project ePubChecker.</description>
+    <macrodef name="initJavaLibs">      
+        <sequential>
+            <loadproperties>
+                <url url="${javalib.repobase}javalib.properties"/>
+            </loadproperties> 
+        </sequential>
+    </macrodef>    
+    <macrodef name="loadJavaLibs">
+        <attribute name="libraryNames"/>
+        <attribute name="targetDir"/>
+        <sequential>         
+            <ac:for list="@{libraryNames}" param="libname">
+                <ac:sequential>
+                    <echo message="processing library @{libname}"/>    
+                    <ac:if>
+                        <matches pattern="^.*-deps$$" string="@{libname}"/>                        
+                        <ac:then>
+                            <ac:propertycopy property="library" from="javalib.@{libname}" override="true"/>
+                            <loadJavaLibs libraryNames="${library}" targetDir="@{targetDir}"/>
+                        </ac:then>
+                        <ac:else>
+                            <ac:propertycopy property="library" from="javalib.@{libname}" override="true"/>
+                            <echo message="Requiring library @{libname} as ${library}"/>
+                            <copy todir="@{targetDir}" flatten="true">
+                                <resources>
+                                    <url url="${library}"/>
+                                </resources>
+                            </copy>
+                        </ac:else>
+                    </ac:if>                   
+                </ac:sequential>
+            </ac:for> 
+        </sequential>        
+    </macrodef>    
+</project>

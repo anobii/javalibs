@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="epubchecker-javalibs-conf" default="default" basedir=".">
+    <description>Check ant version and setup javalibs dependancy handling</description>
+    <fail message="Please build using Ant 1.8.0 or higher.">
+        <condition>
+            <not>
+                <antversion atleast="1.8.0"/>
+            </not>
+        </condition>
+    </fail> 
+    <property name="javalib.revision" value="epubcheck-v1.0"/>      
+    <property name="javalib.repobase" value="https://github.com/anobii/javalibs/raw/${javalib.revision}/"/>
+    <import file="javalibs-macros.xml"/>
+    <initJavaLibs/>
+</project>
+    
