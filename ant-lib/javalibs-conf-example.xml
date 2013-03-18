@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="epubchecker-javalibs-conf" default="default" basedir=".">
+<project name="example-javalibs-conf" default="default" basedir=".">
     <description>Check ant version and setup javalibs dependency handling</description>
-    <property name="javalib.revision" value="epubcheck-v1.0"/>      
+    <property name="javalib.revision" value="example-branch"/>      
     <property name="javalib.repobase" value="https://raw.github.com/anobii/javalibs/${javalib.revision}/"/>
-    <import file="${javalib.repobase}javalibs-macros.xml"/>
+    <import>
+        <url url="${javalib.repobase}ant-lib/javalibs-macros.xml"/>
+    </import>
     <initJavaLibs version="1.0.2"/>
 </project>
     
