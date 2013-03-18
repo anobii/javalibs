@@ -1,38 +1,84 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="javalibs-macros" default="default" basedir="." xmlns:ac="antlib:net.sf.antcontrib">
-    <description>Builds, tests, and runs the project ePubChecker.</description>
-    <macrodef name="initJavaLibs">      
+    <description>Macro definitions for dependency inclusion</description>
+    <fail message="Please build using Ant 1.8.0 or higher.">
+        <condition>
+            <not>
+                <antversion atleast="1.8.0"/>
+            </not>
+        </condition>
+    </fail>    
+    <macrodef name="initJavaLibs">   
+        <attribute name="version"/> 
         <sequential>
             <loadproperties>
                 <url url="${javalib.repobase}javalib.properties"/>
             </loadproperties> 
+            <fail unless="javalib.version">javalib propertis file has not loaded corrtectly, javalib.version is not set</fail>
+            <condition property="incorrect.javalib.version">
+                <not>
+                    <matches pattern="@{version}" string="${javalib.version}"/>   
+                </not>             
+            </condition>
+            <fail if="incorrect.javalib.version">javalib version in repository is ${javalib.version} required version is @{version}</fail>
+            <mkdir dir="${user.home}/.ant/lib"/>
+            <get skipexisting="false" src="${javalib.ant.ant-contrib}" dest="${user.home}/.ant/lib/ant-contrib-current.jar"/>    
+            <taskdef resource="net/sf/antcontrib/antlib.xml" uri="antlib:net.sf.antcontrib">
+                <classpath>
+                    <fileset dir="${user.home}/.ant/lib"/>
+                </classpath>
+            </taskdef>
         </sequential>
-    </macrodef>    
+    </macrodef> 
+    <macrodef name="cleanJavaLibs">
+        <sequential>
+            <delete file="${user.home}/.ant/lib/ant-contrib-current.jar"/>
+            <delete dir="${javalib.library.targetDir}"/>
+        </sequential>
+    </macrodef>   
     <macrodef name="loadJavaLibs">
         <attribute name="libraryNames"/>
         <attribute name="targetDir"/>
-        <sequential>         
+        <sequential>
+            <property name="javalib.library.targetDir" value="@{targetDir}"/>  
+            <property name="javalib.classpath" value="."/>
+            <ac:if>
+                <available file="@{targetDir}"/>
+                <ac:then>
+                    <echo message="Requiring libraries from repository @@ ${javalib.repobase} version ${javalib.version}"/>
+                    <echo message="Writing library files into target directory - @{targetDir}"/>
+                </ac:then>
+                <ac:else>
+                    <fail>Target directory @{targetDir} does not exist</fail>
+                </ac:else>         
+            </ac:if>                 
             <ac:for list="@{libraryNames}" param="libname">
-                <ac:sequential>
-                    <echo message="processing library @{libname}"/>    
+                <ac:sequential>                   
                     <ac:if>
                         <matches pattern="^.*-deps$$" string="@{libname}"/>                        
                         <ac:then>
+                            <fail unless="javalib.@{libname}">javalib dependancy descriptor @{libname} is not available in repository "${javalib.repobase}"</fail>
+                            <echo message="Processing required dependancy descriptor - @{libname}"/>    
                             <ac:propertycopy property="library" from="javalib.@{libname}" override="true"/>
                             <loadJavaLibs libraryNames="${library}" targetDir="@{targetDir}"/>
                         </ac:then>
                         <ac:else>
-                            <ac:propertycopy property="library" from="javalib.@{libname}" override="true"/>
-                            <echo message="Requiring library @{libname} as ${library}"/>
+                            <fail unless="javalib.@{libname}">javalib library @{libname} is not available in repository "${javalib.repobase}"</fail>
+                            <echo message="Processing required library - @{libname}"/>    
+                            <ac:propertycopy property="library" from="javalib.@{libname}" override="true"/>                              
+                            <echo message="Requiring library '@{libname}' as ${library}"/>
                             <copy todir="@{targetDir}" flatten="true">
                                 <resources>
                                     <url url="${library}"/>
                                 </resources>
                             </copy>
                         </ac:else>
-                    </ac:if>                   
+                    </ac:if>                                    
                 </ac:sequential>
             </ac:for> 
+            <path id="javalib.sourcefilepath">
+                <fileset dir="@{targetDir}" includes="**/*.jar" />  
+            </path> 
         </sequential>        
-    </macrodef>    
+    </macrodef>
 </project>
