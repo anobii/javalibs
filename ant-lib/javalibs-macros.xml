@@ -57,16 +57,13 @@
                     <ac:if>
                         <matches pattern="^.*-deps$$" string="@{libname}"/>                        
                         <ac:then>
-                            <fail unless="javalib.@{libname}">javalib dependancy descriptor @{libname} is not available in repository "${javalib.repobase}"</fail>
-                            <echo message="Processing required dependancy descriptor - @{libname}"/>    
+                            <fail unless="javalib.@{libname}">javalib dependancy descriptor @{libname} is not available in repository "${javalib.repobase}"</fail>  
                             <ac:propertycopy property="library" from="javalib.@{libname}" override="true"/>
                             <loadJavaLibs libraryNames="${library}" targetDir="@{targetDir}"/>
                         </ac:then>
                         <ac:else>
-                            <fail unless="javalib.@{libname}">javalib library @{libname} is not available in repository "${javalib.repobase}"</fail>
-                            <echo message="Processing required library - @{libname}"/>    
+                            <fail unless="javalib.@{libname}">javalib library @{libname} is not available in repository "${javalib.repobase}"</fail> 
                             <ac:propertycopy property="library" from="javalib.@{libname}" override="true"/>                              
-                            <echo message="Requiring library '@{libname}' as ${library}"/>
                             <get skipexisting="true" src="${library}" dest="@{targetDir}"/>                
                         </ac:else>
                     </ac:if>                                    
